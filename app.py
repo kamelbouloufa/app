@@ -3,13 +3,13 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 import time
-import os
 
 app = Flask(__name__)
 
+# ✅ نقطة نهاية للصفحة الرئيسية
 @app.route('/')
 def home():
-    return "✅ السيرفر يعمل! استخدم /visit?url=your-link لفتح رابط."
+    return "✅ التطبيق يعمل! استخدم /visit?url=your-link لفتح رابط."
 
 @app.route('/visit', methods=['GET'])
 def visit():
@@ -25,10 +25,9 @@ def visit():
     options.add_argument("--remote-debugging-port=9222")
     options.add_argument("--window-size=1920,1080")  
 
-    # التأكد من وجود ChromeDriver على Render
+    # تأكد من وجود ChromeDriver في بيئة Render
     chrome_path = "/usr/bin/google-chrome"  
     driver_path = "/usr/bin/chromedriver"
-
     options.binary_location = chrome_path
     service = Service(driver_path)
     
@@ -43,6 +42,9 @@ def visit():
         return jsonify({'error': str(e)}), 500
     finally:
         driver.quit()
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
