@@ -2,16 +2,20 @@ from flask import Flask, request, jsonify
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
-from webdriver_manager.chrome import ChromeDriverManager
 import time
+import os
 
 app = Flask(__name__)
+
+@app.route('/')
+def home():
+    return "✅ السيرفر يعمل! استخدم /visit?url=your-link لفتح رابط."
 
 @app.route('/visit', methods=['GET'])
 def visit():
     url = request.args.get('url')
     if not url:
-        return jsonify({'error': 'يرجى إضافة رابط عبر ?url='}), 400
+        return jsonify({'error': '❌ يرجى إضافة رابط عبر ?url='}), 400
 
     options = Options()
     options.add_argument("--headless")  
@@ -19,14 +23,20 @@ def visit():
     options.add_argument("--disable-dev-shm-usage")
     options.add_argument("--disable-gpu")
     options.add_argument("--remote-debugging-port=9222")
-    options.add_argument("--window-size=1920,1080")  # يحاكي شاشة كاملة
+    options.add_argument("--window-size=1920,1080")  
 
-    service = Service(ChromeDriverManager().install())
+    # التأكد من وجود ChromeDriver على Render
+    chrome_path = "/usr/bin/google-chrome"  
+    driver_path = "/usr/bin/chromedriver"
+
+    options.binary_location = chrome_path
+    service = Service(driver_path)
+    
     driver = webdriver.Chrome(service=service, options=options)
 
     try:
         driver.get(url)
-        time.sleep(5)  # انتظار تحميل الصفحة (يمكن تعديل المدة حسب الحاجة)
+        time.sleep(5)
 
         return jsonify({'message': '✅ تم فتح الرابط بنجاح!', 'url': url})
     except Exception as e:
